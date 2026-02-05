@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StudentManagementAPI.Services;
+using StudentManagementAPI.Models;
 
-namespace StudentManagementAPI.Controller
+namespace StudentManagementAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,7 +17,8 @@ namespace StudentManagementAPI.Controller
 
         [HttpGet]
         public IActionResult GetAll() => Ok(_service.GetAll());
-        [HttpGet]
+
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
             var student = _service.GetById(id);
@@ -25,9 +27,10 @@ namespace StudentManagementAPI.Controller
             return Ok(student);
         }
         [HttpPost]
-        public IActionResult Add(Student student)
+        public IActionResult Add([FromBody] Student student)
         {
-            var updated = _service.Add(student);
+            var created = _service.Add(student);
+            return CreatedAtAction(nameof(GetById), new { id = created.USN }, created);
         }
     }
 }
