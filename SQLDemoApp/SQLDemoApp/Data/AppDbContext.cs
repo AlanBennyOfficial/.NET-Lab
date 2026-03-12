@@ -1,15 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SQLDemoApp.Models;
+using SQLDemo.App.Models;
 
-namespace SQLDemoApp.Data
+namespace SQLDemo.App.Data
 {
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-        public DbSet<Student> Students { get; set; }
-    {
 
+        public DbSet<Student> Students { get; set; }
     }
 }

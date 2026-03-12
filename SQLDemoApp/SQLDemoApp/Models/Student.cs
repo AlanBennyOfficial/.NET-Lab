@@ -1,19 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SQLDemoApp.Models
+namespace SQLDemo.App.Models
 {
     public class Student
     {
-        public int Usn { get; set; }
-        [Required]
-        [MaxLength(255)]
+        public int Id { get; set; }
 
-        public string FullName { get; set; }
+        [Required]
+        public string Usn { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(100)]
+        public string FullName { get; set; } = string.Empty;
+
         [Required]
         [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
-        public string Email { get; set; }
-        public string Department { get; set; }
-        public Address? Address { get; set; }
+        public string Department { get; set; } = string.Empty;
     }
 }

@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SQLDemoApp.Models;
-using Microsoft.AspNetCore.Http;
-using SQLDemoApp.Data;
-using SQLDemoApp.DTO;
+using SQLDemo.App.Data;
+using SQLDemo.App.DTOs;
+using SQLDemo.App.Models;
 
-namespace SQLDemoApp.Controllers
+namespace SQLDemo.App.Controllers
 {
-    public class StudentController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class StudentController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly AppDbContext _context;
+
+        public StudentController(AppDbContext context)
         {
-            return View();
+            _context = context;
         }
 
-        
-
-        [HttpGet("GetAll")]
-        public async Task<IActionResult<Enumerable<StudentReadDto>>> GetAll()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<StudentReadDto>>> GetAll()
         {
             var students = await _context.Students
                 .Select(s => new StudentReadDto
@@ -33,25 +34,82 @@ namespace SQLDemoApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult<StudentReadDto>> GetById(int id)
+        public async Task<ActionResult<StudentReadDto>> GetById(int id)
         {
             var student = await _context.Students.FindAsync(id);
-                
-            if studnet == null
-            {
+
+            if (student == null)
                 return NotFound();
-            }
 
             var readDto = new StudentReadDto
             {
                 Id = student.Id,
-                Usn = student.Usn,
+                //Usn = student.Usn,
                 FullName = student.FullName,
                 Email = student.Email,
                 Department = student.Department
             };
+
             return Ok(readDto);
-
-
         }
+
+        [HttpPost("Create")]
+        public async Task<ActionResult<StudentReadDto>> Create(StudentCreateDto dto)
+        {
+            var student = new Student
+            {
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Department = dto.Department
+            };
+
+            _context.Students.Add(student);
+            await _context.SaveChangesAsync();
+
+            var readDto = new StudentReadDto
+            {
+                Id = student.Id,
+                FullName = student.FullName,
+                Email = student.Email,
+                Department = student.Department
+            };
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = student.Id },
+                readDto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, StudentUpdateDto dto)
+        {
+            var student = await _context.Students.FindAsync(id);
+
+            if (student == null)
+                return NotFound();
+
+            //student.Usn = dto.Usn;
+            student.FullName = dto.FullName;
+            student.Email = dto.Email;
+            student.Department = dto.Department;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var student = await _context.Students.FindAsync(id);
+
+            if (student == null)
+                return NotFound();
+
+            _context.Students.Remove(student);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+    }
 }
